@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:getx_todo/screens/speechController.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:get/get.dart';
 
 
 class Speech extends StatefulWidget {
@@ -13,45 +15,7 @@ class Speech extends StatefulWidget {
 
 class _SpeechState extends State<Speech> {
 
-  SpeechToText _speechToText = SpeechToText();
-  String words = "";
-  bool _enable = false;
-
-
-  @override
-  void initState(){
-    super.initState();
-    askAudio();
-  }
-
-  void askAudio() async {
-    var per = await Permission.audio.request();
-    if(per.isDenied) {
-      await Permission.audio.request();
-    }
-    _enable = await _speechToText.initialize();
-    setState(() { });
-  }
-
-
-  void _result(SpeechRecognitionResult result) async {
-    setState(() {
-      words = result.recognizedWords;
-    });
-  }
-
-  void startListen() async {
-    await _speechToText.listen(onResult: _result);
-    setState(() { });
-  }
-
-  void stopListen() async {
-    await _speechToText.stop();
-    setState(() { });
-  }
-
-
-
+SpeechController _controller = Get.put(SpeechController());
 
 
   @override
@@ -60,14 +24,20 @@ class _SpeechState extends State<Speech> {
       appBar: AppBar(title: Text("Speech To Text"),),
       body: Column(
         children: [
-          Text(words),
-          Text(_enable ? "Enabled" : "not enabled" ),
+          ElevatedButton(onPressed: _controller.askAudio, child: Text("ASK aUDIO")),
+          Text(_controller.words.value),
+          Text(_controller.enable.value ? "Enabled" : "not enabled" ),
           ElevatedButton(
-            onPressed: _speechToText.isListening ? stopListen : startListen,
-            child: Text(_speechToText.isListening ? "stopListen" : "Tap to Start Listen"),
+            onPressed: _controller.speechToText.value.isListening ? _controller.stopListen : _controller.startListen,
+            child: Text(_controller.speechToText.value.isListening ? "stopListen" : "Tap to Start Listen"),
           )
         ],
       ),
     );
   }
 }
+
+
+
+
+
