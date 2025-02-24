@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx_todo/Controller/emp_controller.dart';
+import 'package:getx_todo/screens/speech.dart';
 
 class EmpScr extends StatelessWidget{
   @override
@@ -15,6 +16,7 @@ class EmpScr extends StatelessWidget{
         appBar: AppBar(title: Text("Emp Screen")),
         body: Padding(padding: EdgeInsets.all(20.0), child: Column(
           children: [
+            ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Speech())), child: Text("Go to Speech to Text"),),
             TextField(
               controller: _name,
             ),
