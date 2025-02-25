@@ -3,49 +3,57 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class SpeechController extends GetxController{
+class SpeechController extends GetxController {
   var speechToText = SpeechToText().obs;
   RxString words = ''.obs;
-  RxBool enable = false.obs ;
+  RxBool enable = false.obs;
 
+  RxBool show = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    askAudio();
+    askAudioPermission();
   }
 
-  void askAudio() async {
-    var per = await Permission.audio.request();
-    if (per.isDenied) {
-      // Handle permission denial (e.g., show a dialog or re-request)
-      await Permission.audio.request();  // This is usually redundant, handle it better
-    } else if (per.isGranted) {
-      // Permission granted, now initialize speech-to-text
+  void askAudioPermission() async {
+    var status = await Permission.speech.request();
+
+    if (status.isDenied) {
+      print("Audio permission denied");
+
+    } else if (status.isGranted) {
       enable.value = await speechToText.value.initialize();
-    } else {
-      // Handle the case where permission is permanently denied (user has denied and checked "Don't ask again")
-      print("Permission permanently denied");
+      print("Audio permission Granted !, ${enable.value.toString()}");
+      if (!enable.value) {
+        print("Speech-to-text initialization failed");
+      }
+
+    } else if (status.isPermanentlyDenied) {
+      print("Audio permission permanently denied. Please enable it in settings.");
+      openAppSettings();
     }
+
   }
 
-
-
-  void _result(SpeechRecognitionResult result) async {
-      words.value = result.recognizedWords;
+  void _result(SpeechRecognitionResult result) {
+    words.value = result.recognizedWords;
   }
 
+  Future<void> startListen() async {
+    if (enable.value == true) {
+      await speechToText.value.listen(onResult: _result);
+      show.value = true;
+    } else {
+      print("Speech-to-text is not initialized.");
 
-  void startListen() async {
-    await speechToText.value.listen(onResult:  _result);
+    }
+
   }
 
-  void stopListen() async {
+  Future<void> stopListen() async {
     await speechToText.value.stop();
+    show.value = false;
   }
-
-
-
-
 
 }

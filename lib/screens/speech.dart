@@ -22,16 +22,29 @@ SpeechController _controller = Get.put(SpeechController());
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(title: Text("Speech To Text"),),
-      body: Column(
-        children: [
-          ElevatedButton(onPressed: _controller.askAudio, child: Text("ASK aUDIO")),
-          Text(_controller.words.value),
-          Text(_controller.enable.value ? "Enabled" : "not enabled" ),
-          ElevatedButton(
-            onPressed: _controller.speechToText.value.isListening ? _controller.stopListen : _controller.startListen,
-            child: Text(_controller.speechToText.value.isListening ? "stopListen" : "Tap to Start Listen"),
-          )
-        ],
+      body: Center(
+        child: Column( mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(onPressed: _controller.askAudioPermission, child: Text("Ask Speech Permission")),
+            Obx(() => Text(_controller.enable.value == true ? "speechToText is Initialized" : "speechToText not Initialized" )),
+            ElevatedButton(
+              onPressed: () async {
+                if(_controller.show.value) {
+                  await _controller.stopListen();
+                } else {
+                  await _controller.startListen();
+                }
+              },
+              child: Obx(() => Text(_controller.show.value ? "Stop Listening" : "Tap to Start Listen")),
+            ),
+            Obx(() => Text(_controller.words.value)),
+
+
+
+
+
+          ],
+        ),
       ),
     );
   }
